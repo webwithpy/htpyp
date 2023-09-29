@@ -1,4 +1,4 @@
-from .data.ast import python, html, Block, Include, Extends, Pass, End
+from .data.ast import Python, Html, Block, Include, Extends, Pass, End
 from .data.token import Methods, Token
 from .helpers.str_helper import remove_quotes
 from .helpers.exceptions import UnexpectedStmt
@@ -49,12 +49,12 @@ class DefaultParser:
 
     def _parse_py(self):
         if self.at().method == Methods.PYTHON:
-            return python(code=self.eat().data)
+            return Python(code=self.eat().data)
         else:
             return self._parse_html()
 
     def _parse_html(self):
         if self.at().method == Methods.HTML:
-            return html(code=self.eat().data)
+            return Html(code=self.eat().data)
         else:
             raise UnexpectedStmt(self.at())

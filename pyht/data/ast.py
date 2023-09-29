@@ -17,12 +17,10 @@ class Program:
         self.kind: str = "program"
         self.body: List[Stmt] = []
 
-
-class Extends(Stmt):
-    def __init__(self, file_path: str):
+class FileStmt(Stmt):
+    def __init__(self, file_path):
         super().__init__()
-        self.kind = "extends"
-        self.f_path = Path(file_path)
+        self.file_path = file_path
 
         if not self.f_path.exists():
             raise Exception("File path not found")
@@ -30,8 +28,13 @@ class Extends(Stmt):
     def file_content(self):
         return self.f_path.read_text('utf-8')
 
+class Extends(FileStmt):
+    def __init__(self, file_path: str):
+        super().__init__(file_path)
+        self.kind = "extends"
 
-class Include(Extends):
+
+class Include(FileStmt):
     def __init__(self, file_path: str):
         super().__init__(file_path)
         self.kind = "include"
@@ -45,14 +48,14 @@ class Block(Stmt):
         self.block_data = data
 
 
-class python(Stmt):
+class Python(Stmt):
     def __init__(self, code: str):
         super().__init__()
         self.kind = 'python'
         self.code = code
 
 
-class html(Stmt):
+class Html(Stmt):
     def __init__(self, code: str):
         super().__init__()
         self.kind = 'html'

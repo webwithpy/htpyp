@@ -1,41 +1,60 @@
-from .data.ast import Stmt
-from typing import List
+from .data.render_block import RenderBlock
+from .data.ast import Stmt, Include, Extends, Python, Html
 from .lexer import Lexer
 from .parser import DefaultParser
-from .data.ast import Include, Extends
+from typing import List
 
 
 class DefaultRenderer:
     @classmethod
     def render(cls, program: List[Stmt]) -> List[str]:
         # amount of times spacing needs to be added
-        spacing: int = 0
-        program: List[List[str]] = []
-        code: List[str] = []
+        program: List[RenderBlock] = []
         for index, stmt in enumerate(program):
-            if stmt.kind == "extends":
-                stmt: Extends
-                # still need 2 find where 2 throw code in extend
-                rendered = cls.__render_at_fpath(f_path=stmt.f_path)
-                code += rendered
-            elif stmt.kind == "include":
-                stmt: Include
+            match stmt.kind:
+                case "extends":
+                    stmt: Extends
+                    rendered = cls.__render_at_file_path(render_name='extends', file_path=stmt.file_path)
+                    program += rendered
+                case "include":
+                    stmt: Include
+                    rendered = cls.__render_at_file_path(render_name="include", file_path=stmt.file_path)
+                    program += rendered
+                case "python":
+                    stmt: Python
+                    pythonRender = RenderBlock(body=stmt.code)
+                    program.append(pythonRender)
+                case "html":
+                    stmt: Html
+                    htmlRender = RenderBlock(body=stmt.code)
+                    program.append(htmlRender)
+                case "pass":
+                    passBlock = RenderBlock(block_type='pass')
+                    program.append(passBlock)
+                
 
-        if len(code) > 0:
-            program.append(code)
+        # PARSE CODE HERE
 
-        return code
+        return ""
 
     @classmethod
-    def __render_at_fpath(cls, f_path) -> List[str]:
+    def __build_code_from_program(cls, program):
+        ...
+
+    @classmethod
+    def __render_at_file_path(cls, render_name: str, file_path: str) -> List[str]:
         """
-        :param f_path: file path
+        when a file is for example extended we will need to parse that one too.
+        the rendered python will be placed where the extends happens
+        :param render_name: name of the block
+        :param file_path: path of the file
         :return:
         """
         lexer = Lexer()
-        tokens = lexer.lex_file(f_path)
-        parser = DefaultParser(tokens)
         program = parser.parse()
+
+        tokens = lexer.lex_file(file_path)
+        parser = DefaultParser(tokens)
         rendered = DefaultRenderer.render(program)
 
-        return rendered
+        return RenderBlock(body=rendered, block_type=render_name)
