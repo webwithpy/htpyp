@@ -1,4 +1,3 @@
-from .data.render_block import RenderBlock
 from .data.ast import Stmt, Include, Extends, Python, Html
 from .lexer import Lexer
 from .parser import DefaultParser
@@ -7,9 +6,10 @@ from typing import List
 
 class DefaultRenderer:
     @classmethod
-    def render(cls, program: List[Stmt]) -> List[str]:
+    def _render_code(cls, program: List[Stmt]) -> List[str]:
         # amount of times spacing needs to be added
-        program: List[RenderBlock] = []
+        cls.code = ''
+        cls.spacing = ''
         for index, stmt in enumerate(program):
             match stmt.kind:
                 case "extends":
@@ -19,27 +19,31 @@ class DefaultRenderer:
                 case "include":
                     stmt: Include
                     rendered = cls.__render_at_file_path(render_name="include", file_path=stmt.file_path)
-                    program += rendered
+                    cls.code += rendered
                 case "python":
                     stmt: Python
-                    pythonRender = RenderBlock(body=stmt.code)
-                    program.append(pythonRender)
+                    cls.code += f'{cls.spacing}{stmt.code}\n'
+                    if ':' in stmt.code:
+                        cls.spacing += '    '
                 case "html":
                     stmt: Html
-                    htmlRender = RenderBlock(body=stmt.code)
-                    program.append(htmlRender)
+                    stmt.code = stmt.code.replace('"', "'")
+                    cls.code += f'{cls.spacing}html += "{stmt.code}"\n'
                 case "pass":
-                    passBlock = RenderBlock(block_type='pass')
-                    program.append(passBlock)
+                    cls.spacing = cls.spacing[:-4]
                 
 
         # PARSE CODE HERE
 
-        return ""
-
+        return cls.code
+    
     @classmethod
-    def __build_code_from_program(cls, program):
-        ...
+    def render(cls, program: List[Stmt], **vars):
+        code = cls._render_code(program=program)
+        vars['html'] = ''
+        exec(code, {}, vars)
+
+        return vars['html']
 
     @classmethod
     def __render_at_file_path(cls, render_name: str, file_path: str) -> List[str]:
@@ -55,6 +59,6 @@ class DefaultRenderer:
 
         tokens = lexer.lex_file(file_path)
         parser = DefaultParser(tokens)
-        rendered = DefaultRenderer.render(program)
+        rendered = DefaultRenderer._render_code(program)
 
-        return RenderBlock(body=rendered, block_type=render_name)
+        return rendered
