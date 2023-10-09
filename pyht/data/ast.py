@@ -12,21 +12,24 @@ class Stmt:
     def __repr__(self):
         return self.__str__()
 
+
 class Program:
     def __init__(self):
         self.kind: str = "program"
         self.body: List[Stmt] = []
 
+
 class FileStmt(Stmt):
     def __init__(self, file_path):
         super().__init__()
-        self.file_path = file_path
+        self.file_path = Path(file_path)
 
-        if not self.f_path.exists():
+        if not self.file_path.exists():
             raise Exception("File path not found")
 
     def file_content(self):
-        return self.f_path.read_text('utf-8')
+        return self.file_path.read_text('utf-8')
+
 
 class Extends(FileStmt):
     def __init__(self, file_path: str):
@@ -53,6 +56,12 @@ class Python(Stmt):
         super().__init__()
         self.kind = 'python'
         self.code = code
+
+
+class Variable(Python):
+    def __init__(self, code: str):
+        super().__init__(code)
+        self.kind = 'variable'
 
 
 class Html(Stmt):

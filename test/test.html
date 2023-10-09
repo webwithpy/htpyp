@@ -1,3 +1,4 @@
+{{include 'test/test2.html'}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,8 +6,12 @@
     <title>Title</title>
 </head>
 <body>
+    {{block 'test'}}
+        Hello World!
+    {{end}}
     {{for i in range(2):}}
-        HI!
+        {{=i}}
     {{pass}}
+    {{=test}}
 </body>
 </html>

@@ -16,38 +16,47 @@ class Lexer:
         file_data: List[str] = file_path.read_text().split("\n")
 
         for line in file_data:
-            if "{{" in line:
-                l_bracket = line.find("{{")
-                r_bracket = line.find("}}")
-                # make it so that everything outside the brackets is also parsed
-                tokens.append(Token(data=line[0:l_bracket], method=Methods.HTML))
-                tokens.append(
-                    Token(data=line[r_bracket + 2 : len(line)], method=Methods.HTML)
-                )
-                line = self.__filter_pyht(line=line[l_bracket + 2 : r_bracket])
-
-                if line.startswith("include"):
-                    line = line[len("include"): len(line)]
-                    line = remove_quotes(line.replace(' ', ''))
-                    tokens.append(Token(data=line, method=Methods.INCLUDE))
-                elif line.startswith("extends"):
-                    line = line[len("extends"): len(line)]
-                    line = remove_quotes(line.replace(' ', ''))
-                    tokens.append(Token(data=line, method=Methods.EXTENDS))
-                elif line.startswith("block"):
-                    line = line[len("block"): len(line)]
-                    line = line.replace(' ', '')
-                    tokens.append(Token(data=line, method=Methods.BLOCK))
-                elif line == "pass":
-                    line = line[len("pass"): len(line)]
-                    tokens.append(Token(data=line, method=Methods.PASS))
-                elif line == "end":
-                    line = line[len("end"): len(line)]
-                    tokens.append(Token(data=line, method=Methods.PASS))
-                else:
-                    tokens.append(Token(data=line, method=Methods.PYTHON))
-            else:
+            if "{{" not in line:
                 tokens.append(Token(data=line, method=Methods.HTML))
+                continue
+
+            l_bracket = line.find("{{")
+            r_bracket = line.find("}}")
+            # make it so that everything outside the brackets is also parsed
+            tokens.append(Token(data=line[0:l_bracket], method=Methods.HTML))
+            tokens.append(
+                Token(data=line[r_bracket + 2: len(line)], method=Methods.HTML)
+            )
+            line = self.__filter_pyht(line=line[l_bracket + 2: r_bracket])
+
+            if line.startswith("include"):
+                # NOTE: include will do the same as extends for the time being, however it might find use in the
+                # future
+                line = line[len("include"): len(line)]
+                line = remove_quotes(line.replace(' ', ''))
+                tokens.append(Token(data=line, method=Methods.INCLUDE))
+            elif line.startswith("extends"):
+                # extending files means including its entire content and putting at the extends loc
+                line = line[len("extends"): len(line)]
+                line = remove_quotes(line.replace(' ', ''))
+                tokens.append(Token(data=line, method=Methods.EXTENDS))
+            elif line.startswith("block"):
+                # code blocks you can place anywhere
+                line = line[len("block"): len(line)]
+                line = remove_quotes(line.replace(' ', ''))
+                tokens.append(Token(data=line, method=Methods.BLOCK))
+            elif line.startswith('='):
+                # this is going to be for drawing python variables to the screen
+                line = line[1: len(line)]
+                tokens.append(Token(data=line, method=Methods.VARIABLE))
+            elif line == "pass":
+                # makes spacing go back, so we can exit out of a for loop for example
+                tokens.append(Token(data='', method=Methods.PASS))
+            elif line == "end":
+                # the end block will do the same as the PASS block, this is just personal preference
+                tokens.append(Token(data='', method=Methods.END))
+            else:
+                tokens.append(Token(data=line, method=Methods.PYTHON))
 
         tokens.append(Token(data="EOF", method=Methods.EOF))
 
@@ -70,11 +79,10 @@ class Lexer:
 
         return tokens
 
-
     def __filter_pyht(self, line: str):
         """
         filters all unnecessary data from line
-        :param line: line given in html file
+        :param line: given in html file
         :return:
         """
         line = line.replace("{{", "").replace("}}", "")

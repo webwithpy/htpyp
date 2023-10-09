@@ -1,4 +1,4 @@
-from .data.ast import Python, Html, Block, Include, Extends, Pass, End
+from .data.ast import Variable, Python, Html, Block, Include, Extends, Pass, End
 from .data.token import Methods, Token
 from .helpers.str_helper import remove_quotes
 from .helpers.exceptions import UnexpectedStmt
@@ -50,6 +50,8 @@ class DefaultParser:
     def _parse_py(self):
         if self.at().method == Methods.PYTHON:
             return Python(code=self.eat().data)
+        elif self.at().method == Methods.VARIABLE:
+            return Variable(code=self.eat().data)
         else:
             return self._parse_html()
 

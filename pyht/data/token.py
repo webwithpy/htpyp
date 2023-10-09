@@ -7,9 +7,10 @@ class Methods(IntEnum):
     INCLUDE = auto()
     EXTENDS = auto()
     BLOCK = auto()
+    VARIABLE = auto()
     PYTHON = auto()
-    PASS = auto()
     END = auto()
+    PASS = auto()
     EOF = auto()
 
 
