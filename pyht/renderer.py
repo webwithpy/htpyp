@@ -67,6 +67,7 @@ class DefaultRenderer:
         code = cls._render_code(program=program)
         kwargs['html'] = ''
         kwargs['RenderBlock'] = RenderBlock
+        print(code)
         exec(code, {}, kwargs)
 
         return kwargs['html']
@@ -91,4 +92,6 @@ class DefaultRenderer:
         parser = DefaultParser(tokens)
 
         program = parser.parse()
-        DefaultRenderer._render_code(program)
+
+        code = DefaultRenderer._render_code(program)
+        cls.code = code
