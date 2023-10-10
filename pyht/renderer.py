@@ -41,7 +41,6 @@ class DefaultRenderer:
                     # stmt.code is in this case the name of the block.
                     if stmt.code in cls.blocks:
                         lines = cls.blocks[stmt.code].split('\n')
-                        print(lines)
                         for line in lines:
                             cls.code += f'{cls.spacing}{line}\n'
                     else:
@@ -67,7 +66,6 @@ class DefaultRenderer:
         code = cls._render_code(program=program)
         kwargs['html'] = ''
         kwargs['RenderBlock'] = RenderBlock
-        print(code)
         exec(code, {}, kwargs)
 
         return kwargs['html']

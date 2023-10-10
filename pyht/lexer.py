@@ -48,7 +48,6 @@ class Lexer:
                 idx += 1
 
         tokens.append(Token(data="EOF", method=Methods.EOF))
-        print(f"tokens: {self.filter_tokens(tokens)}")
         return self.filter_tokens(tokens)
 
     def get_token_by_line(self, line):
@@ -107,3 +106,4 @@ class Lexer:
         line = line.replace("{{", "").replace("}}", "")
         # removes all spaces at start of line
         return line.strip(" ")
+
