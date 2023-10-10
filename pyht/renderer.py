@@ -2,7 +2,6 @@ from .data.ast import Block, Stmt, Include, Extends, Python, Html, Variable
 from .lexer import Lexer
 from .parser import DefaultParser
 from typing import List
-import copy
 
 
 class RenderBlock:
@@ -21,8 +20,8 @@ class DefaultRenderer:
             match stmt.kind:
                 case "block":
                     stmt: Block
-                    copied_code = copy.deepcopy(cls.code)
-                    copied_spacing = copy.deepcopy(cls.spacing)
+                    copied_code = cls.code
+                    copied_spacing = cls.spacing
                     cls.code = cls.spacing = ''
 
                     cls._render_code(stmt.block_data)
@@ -59,7 +58,9 @@ class DefaultRenderer:
                 case "pass":
                     cls.spacing = cls.spacing[:-4]
 
-        return cls.code
+        code = cls.code
+        cls.code = ""
+        return code
     
     @classmethod
     def render(cls, program: List[Stmt], **kwargs) -> str:
