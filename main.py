@@ -1,6 +1,6 @@
-from pyht.lexer import Lexer
-from pyht.parser import DefaultParser
-from pyht.renderer import DefaultRenderer
+from htpyp.lexer import Lexer
+from htpyp.parser import DefaultParser
+from htpyp.renderer import DefaultRenderer
 
 lexer = Lexer()
 tokens = lexer.lex_file('test/test.html')
