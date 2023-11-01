@@ -1,4 +1,4 @@
-# pyht
+# htpyp
 A templating engine for python
 
 A easy to use, fast templating tool for full stack python applications.
